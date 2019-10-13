@@ -6,3 +6,9 @@ authors = ["Tim Hütz <tim@huetz.biz>"]
 edition = "2018"
 
 [dependencies]
+chrono = "*"
+clap = {version = "*", features = ["yaml"]}
+fern = "*"
+log = "*"
+serde = { version = "*", features = ["derive"] }
+serde_json = "*"
