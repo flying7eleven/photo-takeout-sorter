@@ -1,0 +1,8 @@
+[package]
+name = "photo-takeout-sorter"
+description = "Tool for sorting the media files you received from Google Takeout for Photos"
+version = "0.1.0"
+authors = ["Tim Hütz <tim@huetz.biz>"]
+edition = "2018"
+
+[dependencies]
