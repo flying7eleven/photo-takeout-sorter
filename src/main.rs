@@ -1,6 +1,35 @@
 use chrono::Local;
 use clap::{crate_authors, crate_description, crate_name, crate_version, load_yaml, App};
 use log::LevelFilter;
+use std::fs::{read_dir, DirEntry};
+use std::io;
+use std::path::Path;
+
+fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry)) -> io::Result<()> {
+    if dir.is_dir() {
+        for entry in read_dir(dir)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.is_dir() {
+                visit_dirs(&path, cb)?;
+            } else {
+                match entry.path().extension() {
+                    Some(file_extension) => {
+                        if file_extension.eq("json") {
+                            cb(&entry);
+                        }
+                    }
+                    None => {}
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn handle_file(dir_entry: &DirEntry) {
+    println!("{}", dir_entry.path().to_str().unwrap());
+}
 
 fn main() {
     // configure the command line parser
@@ -20,7 +49,19 @@ fn main() {
     };
 
     //
+    if matches.occurrences_of("input_folder") != 1 {
+        println!("{}", matches.usage());
+        return;
+    }
+
+    //
     setup_logger(verbosity);
+
+    //
+    visit_dirs(
+        Path::new(matches.value_of("input_folder").unwrap()),
+        &handle_file,
+    );
 }
 
 fn setup_logger(verbosity: LevelFilter) {
