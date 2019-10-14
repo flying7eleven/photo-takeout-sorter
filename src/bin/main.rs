@@ -1,7 +1,7 @@
 use chrono::Local;
 use clap::{crate_authors, crate_description, crate_name, crate_version, load_yaml, App};
 use log::{debug, error, LevelFilter};
-use photo_takeout_sorter::PhotoMetaInformation;
+use photo_takeout_sorter::{AlbumMetaDataInformation, PhotoMetaInformation};
 use std::fs::{read_dir, DirEntry};
 use std::io;
 use std::path::Path;
@@ -29,9 +29,28 @@ fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry)) -> io::Result<()> {
 }
 
 fn handle_file(dir_entry: &DirEntry) {
-    match PhotoMetaInformation::from_file(dir_entry.path().to_str().unwrap()) {
-        Ok(meta) => debug!("{} successfully parsed", dir_entry.path().to_str().unwrap()),
-        Err(_) => error!("{} could not be parsed", dir_entry.path().to_str().unwrap()),
+    if dir_entry
+        .file_name()
+        .to_str()
+        .unwrap()
+        .to_owned()
+        .starts_with("Metadat")
+    {
+        match AlbumMetaDataInformation::from_file(dir_entry.path().to_str().unwrap()) {
+            Ok(_) => debug!(
+                "{} successfully parsed (meta)",
+                dir_entry.path().to_str().unwrap()
+            ),
+            Err(_) => error!(
+                "{} could not be parsed (meta)",
+                dir_entry.path().to_str().unwrap()
+            ),
+        }
+    } else {
+        match PhotoMetaInformation::from_file(dir_entry.path().to_str().unwrap()) {
+            Ok(_) => debug!("{} successfully parsed", dir_entry.path().to_str().unwrap()),
+            Err(_) => error!("{} could not be parsed", dir_entry.path().to_str().unwrap()),
+        }
     }
 }
 

@@ -17,7 +17,7 @@ fn empty_float() -> f32 {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct TimeData {
-    #[serde(default = "empty_int")]
+    #[serde(default = "empty_int_as_string")]
     pub timestamp: String,
 
     #[serde(default = "empty_string")]
@@ -50,7 +50,7 @@ pub struct PhotoMetaInformation {
     #[serde(default = "empty_string")]
     pub description: String,
 
-    #[serde(alias = "imageViews", default = "empty_int")]
+    #[serde(alias = "imageViews", default = "empty_int_as_string")]
     pub image_views: String,
 
     #[serde(alias = "creationTime")]
@@ -69,6 +69,33 @@ pub struct PhotoMetaInformation {
     pub photo_taken_time: TimeData,
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct AlbumData {
+    #[serde(default = "empty_string")]
+    pub title: String,
+
+    #[serde(default = "empty_string")]
+    pub description: String,
+
+    #[serde(default = "empty_string")]
+    pub access: String,
+
+    #[serde(default = "empty_string")]
+    pub location: String,
+
+    #[serde(alias = "date")]
+    pub date: TimeData,
+
+    #[serde(alias = "geoData")]
+    pub geo_data: GeoData,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub struct AlbumMetaDataInformation {
+    #[serde(alias = "albumData")]
+    pub album_data: AlbumData,
+}
+
 impl PhotoMetaInformation {
     pub fn from_file(input_file: &str) -> Result<PhotoMetaInformation, ()> {
         let file_handle = File::open(input_file);
@@ -76,6 +103,19 @@ impl PhotoMetaInformation {
             match serde_json::from_reader(file_handle.unwrap()) {
                 Ok(meta) => return Ok(meta),
                 Err(_) => return Err(()),
+            }
+        }
+        Err(())
+    }
+}
+
+impl AlbumMetaDataInformation {
+    pub fn from_file(input_file: &str) -> Result<AlbumMetaDataInformation, ()> {
+        let file_handle = File::open(input_file);
+        if file_handle.is_ok() {
+            match serde_json::from_reader(file_handle.unwrap()) {
+                Ok(meta) => return Ok(meta),
+                Err(err) => return Err(()),
             }
         }
         Err(())
