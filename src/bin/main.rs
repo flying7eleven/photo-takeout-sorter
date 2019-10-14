@@ -1,6 +1,7 @@
 use chrono::Local;
 use clap::{crate_authors, crate_description, crate_name, crate_version, load_yaml, App};
-use log::LevelFilter;
+use log::{debug, error, LevelFilter};
+use photo_takeout_sorter::PhotoMetaInformation;
 use std::fs::{read_dir, DirEntry};
 use std::io;
 use std::path::Path;
@@ -28,7 +29,10 @@ fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry)) -> io::Result<()> {
 }
 
 fn handle_file(dir_entry: &DirEntry) {
-    println!("{}", dir_entry.path().to_str().unwrap());
+    match PhotoMetaInformation::from_file(dir_entry.path().to_str().unwrap()) {
+        Ok(meta) => debug!("{} successfully parsed", dir_entry.path().to_str().unwrap()),
+        Err(_) => error!("{} could not be parsed", dir_entry.path().to_str().unwrap()),
+    }
 }
 
 fn main() {

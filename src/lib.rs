@@ -7,7 +7,7 @@ fn empty_string() -> String {
     "".to_string()
 }
 
-fn empty_int() -> String {
+fn empty_int_as_string() -> String {
     "0".to_string()
 }
 
@@ -73,9 +73,10 @@ impl PhotoMetaInformation {
     pub fn from_file(input_file: &str) -> Result<PhotoMetaInformation, ()> {
         let file_handle = File::open(input_file);
         if file_handle.is_ok() {
-            let read_meta_data: PhotoMetaInformation =
-                serde_json::from_reader(file_handle.unwrap()).unwrap();
-            return Ok(read_meta_data);
+            match serde_json::from_reader(file_handle.unwrap()) {
+                Ok(meta) => return Ok(meta),
+                Err(_) => return Err(()),
+            }
         }
         Err(())
     }
